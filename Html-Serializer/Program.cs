@@ -106,7 +106,6 @@ static HtmlElement CreateElementsTree(string html)
     return root;
 }
 
-
 /// <summary>
 /// Finds and prints elements matching a CSS selector in the given HTML element tree.
 /// </summary>
@@ -134,20 +133,6 @@ static void Print(HtmlElement root)
         Print(child);
     }
 }
-
-//string query = "div#mydiv.class-name p.class-child";
-//Selector rootSelector = Selector.ConvertQuery(query);
-
-//// דוגמת בדיקה של התוצאה
-//Console.WriteLine($"Root Tag: {rootSelector.TagName}"); // Output: Root Tag: div
-//Console.WriteLine($"Root Id: {rootSelector.Id}");   // Output: Root Id: mydiv
-//Console.WriteLine($"Root Classes: {string.Join(", ", rootSelector.Classes)}"); // Output: Root Classes: class-name
-
-//if (rootSelector.Child != null)
-//{
-//    Console.WriteLine($"Child Tag: {rootSelector.Child.TagName}"); // Output: Child Tag: p
-//    Console.WriteLine($"Child Classes: {string.Join(", ", rootSelector.Child.Classes)}"); // Output: Child Classes: class-child
-//}
 
 
 

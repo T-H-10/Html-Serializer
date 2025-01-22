@@ -8,6 +8,10 @@ using System.Xml.Linq;
 
 namespace Html_Serializer
 {
+    /// <summary>
+    /// Represents a CSS selector, supporting tag name, ID, classes, and hierarchical relationships.
+    /// Provides functionality to convert a query string into a selector hierarchy.
+    /// </summary>
     public class Selector
     {
         public string TagName { get; set; }
@@ -26,8 +30,7 @@ namespace Html_Serializer
         public static Selector ConvertQuery(string query)
         {
             string[] levels = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            Selector root = null;
-            Selector current = null;
+            Selector root = null, current = null;
 
             foreach (string level in levels)
             {
@@ -67,6 +70,10 @@ namespace Html_Serializer
             return root;
         }
 
+        /// <summary>
+        /// Returns a string representation of the selector, including its properties and hierarchy.
+        /// </summary>
+        /// <returns>A formatted string representing the selector.</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -86,18 +93,6 @@ namespace Html_Serializer
                 sb.AppendLine("Child: ");
                 sb.AppendLine("\t||");
                 sb.AppendLine("\t\\/");
-                //if (Child.TagName != null)
-                //    sb.Append(" name: " + Child.TagName);
-                //if (Child.Id != null) sb.Append(" id: " + Child.Id);
-                //if (Child.Classes.Count > 0)
-                //{
-                //    sb.Append("classes: ");
-                //    foreach (var c in Child.Classes)
-                //    {
-                //        sb.Append($"{c} ");
-                //    }
-                //}
-                //sb.AppendLine();
             }
             return sb.ToString();
         }

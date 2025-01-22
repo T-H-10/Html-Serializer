@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Html_Serializer
 {
+    /// <summary>
+    /// Represents an HTML element with properties such as ID, name, attributes, classes, and children.
+    /// Provides methods for querying descendants, ancestors, and finding elements based on a selector.
+    /// </summary>
     internal class HtmlElement
     {
         public string Id { get; set; }
@@ -15,17 +19,26 @@ namespace Html_Serializer
         public string InnerHtml { get; set; } = "";
         public HtmlElement Parent { get; set; }
         public List<HtmlElement> Children { get; set; } = new List<HtmlElement>();
-        //Adds attributes to the element.
+        
+        private const string IdAttribute = "id";
+        private const string ClassAttribute = "class";
+
+        /// <summary>
+        /// Adds attributes to the HTML element based on a string in the format "key=value".
+        /// Handles special cases for "id" and "class" attributes.
+        /// </summary>
+        /// <param name="attribute">The attribute string in the format "key=value".</param>
         public void AddAttributes(string attribute)
         {
+            if (!attribute.Contains('=')) return;
             string[] key_value = attribute.Split('=');
             string key = key_value[0];
             string value = string.Join(" ", key_value.Skip(1));
-            if (key.Equals("id"))
+            if (key.Equals(IdAttribute))
             {
                 Id = value.Trim('"');
             }
-            else if (key.Equals("class"))
+            else if (key.Equals(ClassAttribute))
             {
                 string[] classes = value.Split(' ');
                 foreach (var clas in classes)
@@ -37,6 +50,10 @@ namespace Html_Serializer
                 Attributes.Add(key, value.Trim('"'));
         }
 
+        /// <summary>
+        /// Returns all descendants of the current HTML element, including itself.
+        /// </summary>
+        /// <returns>An enumerable collection of all descendant elements.</returns>
         public IEnumerable<HtmlElement> Descendants()
         {
             Queue<HtmlElement> queue = new Queue<HtmlElement>();
@@ -52,6 +69,10 @@ namespace Html_Serializer
             }
         }
 
+        /// <summary>
+        /// Returns all ancestor elements of the current HTML element, including itself.
+        /// </summary>
+        /// <returns>An enumerable collection of all ancestor elements.</returns>
         public IEnumerable<HtmlElement> Ancestors()
         {
             HtmlElement current = this;
@@ -62,15 +83,27 @@ namespace Html_Serializer
             }
         }
 
+        /// <summary>
+        /// Queries the HTML element and its descendants for elements that match a given selector.
+        /// </summary>
+        /// <param name="selector">The selector object to match elements against.</param>
+        /// <returns>A collection of HTML elements that match the selector.</returns>
         public IEnumerable<HtmlElement> Query(Selector selector)
         {
             var set = new HashSet<HtmlElement>();
             FindElementBySelector(selector, set, this.Descendants());
             return set;
         }
-        void FindElementBySelector(Selector selector, HashSet<HtmlElement> list, IEnumerable<HtmlElement> elements)
+        
+        /// <summary>
+        /// Recursively finds elements that match a given selector and adds them to the result set.
+        /// </summary>
+        /// <param name="selector">The selector object to match elements against.</param>
+        /// <param name="list">The result set of matching elements.</param>
+        /// <param name="elements">The collection of elements to search within.</param>
+        private void FindElementBySelector(Selector selector, HashSet<HtmlElement> list, IEnumerable<HtmlElement> elements)
         {
-            if (selector == null)
+            if (selector == null || elements==null || !elements.Any())
                 return;
 
             foreach (var item in elements)
@@ -83,19 +116,28 @@ namespace Html_Serializer
                 }
             }
         }
+        
+        /// <summary>
+        /// Checks whether a given HTML element matches a specific selector.
+        /// </summary>
+        /// <param name="element">The HTML element to check.</param>
+        /// <param name="selector">The selector to match against.</param>
+        /// <returns>True if the element matches the selector; otherwise, false.</returns>
         public bool CheckSelector(HtmlElement element, Selector selector)
         {
             if (selector.Id != null && !selector.Id.Equals(element.Id))
                 return false;
             if (selector.TagName!=null && selector.TagName != element.Name)
                 return false;
-            if(selector.Classes.Count > 0 && element.Classes.Count==0)
+            if(selector.Classes.Count > 0 && !selector.Classes.All(c=>element.Classes.Contains(c)))
                 return false;
-            foreach (var c in selector.Classes)
-                if (!element.Classes.Contains(c))
-                    return false;
             return true;
         }
+        
+        /// <summary>
+        /// Returns a string representation of the HTML element, including its properties and structure.
+        /// </summary>
+        /// <returns>A formatted string representing the HTML element.</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -103,19 +145,21 @@ namespace Html_Serializer
             if (Id != null) sb.AppendLine($"Id: {Id}");
             if (Classes.Count > 0)
             {
-                sb.AppendLine("Classes:");
-                foreach (var clas in Classes)
-                {
-                    sb.AppendLine("\t- " + clas);
-                }
+                sb.AppendLine("Classes:")
+                    .AppendLine(string.Join(Environment.NewLine, Classes.Select(c => "\t- " + c)));
+                //foreach (var clas in Classes)
+                //{
+                //    sb.AppendLine("\t- " + clas);
+                //}
             }
             if (Attributes.Count > 0)
             {
-                sb.AppendLine("Attributes: ");
-                foreach (var attribute in Attributes)
-                {
-                    sb.AppendLine("\t- " + attribute);
-                }
+                sb.AppendLine("Attributes: ")
+                    .AppendLine(string.Join(Environment.NewLine, Attributes.Select(attr => $"\t- {attr.Key}: {attr.Value}")));
+                //foreach (var attribute in Attributes)
+                //{
+                //    sb.AppendLine("\t- " + attribute);
+                //}
             }
             if (InnerHtml.Length>0) sb.AppendLine("InnerHTML " + InnerHtml);
             if (Parent != null) sb.AppendLine("Parent: " + Parent.Name);
