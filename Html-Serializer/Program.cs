@@ -1,6 +1,4 @@
-﻿
-
-using Html_Serializer;
+﻿using Html_Serializer;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
 /// <summary>
@@ -83,7 +81,7 @@ static HtmlElement CreateElementsTree(string html)
         {
             current = current.Parent ?? root;
         }
-        else if (HtmlHelper.Instance.HtmlTags.Contains(tagName) || HtmlHelper.Instance.HtmlVoidTags.Contains(tagName))
+        else if (HtmlHelper.Instance.HtmlTags.Contains(tagName))
         {
             HtmlElement child = new HtmlElement() { Name = tagName };
             // Extract attributes.
@@ -95,7 +93,7 @@ static HtmlElement CreateElementsTree(string html)
             current.Children.Add(child);
             child.Parent = current;
 
-            if (HtmlHelper.Instance.HtmlTags.Contains(tagName))
+            if (!HtmlHelper.Instance.HtmlVoidTags.Contains(tagName))
             {
                 current = child;
             }
@@ -116,25 +114,26 @@ static HtmlElement CreateElementsTree(string html)
 /// <param name="root">The root HTML element.</param>
 static void Check1(Selector selector, HtmlElement root)
 {
-    var result = root.FindBySelector(selector);
+    var result = root.Query(selector);
     result.ToList().ForEach(element => { Console.WriteLine(element.ToString()); });
 }
 
-string html = await LoadAsync("https://kcm.fm/Live/11");
+string html = await LoadAsync("https://chani-k.co.il/sherlok-game/");
 HtmlElement root = CreateElementsTree(html);
-Selector selector = Selector.ConvertQuery("div");
+Selector selector = Selector.ConvertQuery("div a");
+//Console.WriteLine(selector.ToString());
 Check1(selector, root);
 
 //Print(root);
 
-//static void Print(HtmlElement root)
-//{
-//    root.Print();
-//    foreach (var child in root.Children)
-//    {
-//        Print(child);
-//    }
-//}
+static void Print(HtmlElement root)
+{
+    Console.WriteLine(root.ToString());
+    foreach (var child in root.Children)
+    {
+        Print(child);
+    }
+}
 
 //string query = "div#mydiv.class-name p.class-child";
 //Selector rootSelector = Selector.ConvertQuery(query);

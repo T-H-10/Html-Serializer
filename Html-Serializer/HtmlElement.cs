@@ -62,33 +62,40 @@ namespace Html_Serializer
             }
         }
 
-        public List<HtmlElement> FindBySelector(Selector selector)
+        public IEnumerable<HtmlElement> Query(Selector selector)
         {
-            HashSet<HtmlElement> result = new HashSet<HtmlElement>();
-            FindBySelectorRec(this, selector, result);
-            return result.ToList();
+            var set = new HashSet<HtmlElement>();
+            FindElementBySelector(selector, set, this.Descendants());
+            return set;
         }
-        private void FindBySelectorRec(HtmlElement htmlElement, Selector selector, HashSet<HtmlElement> result)
+        void FindElementBySelector(Selector selector, HashSet<HtmlElement> list, IEnumerable<HtmlElement> elements)
         {
-            bool matches = true;
-            if (!htmlElement.Name.Equals(selector.TagName))
-            {
-                matches = false;
-            }
-            if (selector.Classes.Any() && !selector.Classes.All(c => htmlElement.Classes.Contains(c)))
-            {
-                matches = false;
-            }
-            if (matches)
-            {
-                result.Add(htmlElement);
-            }
-            foreach (var child in htmlElement.Descendants())
-            {
-                FindBySelectorRec(child, selector, result);
-            }
-        }
+            if (selector == null)
+                return;
 
+            foreach (var item in elements)
+            {
+                if (CheckSelector(item, selector))
+                {
+                    if (selector.Child == null)
+                        list.Add(item);
+                    FindElementBySelector(selector.Child, list, item.Descendants());
+                }
+            }
+        }
+        public bool CheckSelector(HtmlElement element, Selector selector)
+        {
+            if (selector.Id != null && !selector.Id.Equals(element.Id))
+                return false;
+            if (selector.TagName!=null && selector.TagName != element.Name)
+                return false;
+            if(selector.Classes.Count > 0 && element.Classes.Count==0)
+                return false;
+            foreach (var c in selector.Classes)
+                if (!element.Classes.Contains(c))
+                    return false;
+            return true;
+        }
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -110,7 +117,7 @@ namespace Html_Serializer
                     sb.AppendLine("\t- " + attribute);
                 }
             }
-            if (InnerHtml != null) sb.AppendLine("InnerHTML " + InnerHtml);
+            if (InnerHtml.Length>0) sb.AppendLine("InnerHTML " + InnerHtml);
             if (Parent != null) sb.AppendLine("Parent: " + Parent.Name);
             if (Children.Count > 0)
             {

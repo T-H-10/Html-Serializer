@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Html_Serializer
 {
@@ -11,7 +12,7 @@ namespace Html_Serializer
     {
         public string TagName { get; set; }
         public string Id { get; set; }
-        public List<string> Classes { get; set; }= new List<string>();
+        public List<string> Classes { get; set; } = new List<string>();
         public Selector Parent { get; set; }
         public Selector Child { get; set; }
 
@@ -58,12 +59,47 @@ namespace Html_Serializer
                 else
                 {
                     // Set the parent-child relationship.
-                    current.Child= newSelector;
+                    current.Child = newSelector;
                     newSelector.Parent = current;
                 }
-                current=newSelector;
+                current = newSelector;
             }
             return root;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (Parent != null) sb.AppendLine("Parent: \n" + Parent.ToString());
+            sb.AppendLine($"Name: {TagName}");
+            if (Id != null) sb.AppendLine($"Id: {Id}");
+            if (Classes.Count > 0)
+            {
+                sb.AppendLine("Classes:");
+                foreach (var clas in Classes)
+                {
+                    sb.AppendLine("\t- " + clas);
+                }
+            }
+            if (Child!=null)
+            {
+                sb.AppendLine("Child: ");
+                sb.AppendLine("\t||");
+                sb.AppendLine("\t\\/");
+                //if (Child.TagName != null)
+                //    sb.Append(" name: " + Child.TagName);
+                //if (Child.Id != null) sb.Append(" id: " + Child.Id);
+                //if (Child.Classes.Count > 0)
+                //{
+                //    sb.Append("classes: ");
+                //    foreach (var c in Child.Classes)
+                //    {
+                //        sb.Append($"{c} ");
+                //    }
+                //}
+                //sb.AppendLine();
+            }
+            return sb.ToString();
         }
     }
 }
