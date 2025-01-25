@@ -28,27 +28,27 @@ namespace Html_Serializer
         /// Handles special cases for "id" and "class" attributes.
         /// </summary>
         /// <param name="attribute">The attribute string in the format "key=value".</param>
-        public void AddAttributes(string attribute)
-        {
-            if (!attribute.Contains('=')) return;
-            string[] key_value = attribute.Split('=');
-            string key = key_value[0];
-            string value = string.Join(" ", key_value.Skip(1));
-            if (key.Equals(IdAttribute))
-            {
-                Id = value.Trim('"');
-            }
-            else if (key.Equals(ClassAttribute))
-            {
-                string[] classes = value.Split(' ');
-                foreach (var clas in classes)
-                {
-                    Classes.Add(clas.Trim('"'));
-                }
-            }
-            else
-                Attributes.Add(key, value.Trim('"'));
-        }
+        //public void AddAttributes(string attribute)
+        //{
+        //    if (!attribute.Contains('=')) return;
+        //    string[] key_value = attribute.Split('=');
+        //    string key = key_value[0];
+        //    string value = string.Join(" ", key_value.Skip(1));
+        //    if (key.Equals(IdAttribute))
+        //    {
+        //        Id = value.Trim('"');
+        //    }
+        //    else if (key.Equals(ClassAttribute))
+        //    {
+        //        string[] classes = value.Split(' ');
+        //        foreach (var clas in classes)
+        //        {
+        //            Classes.Add(clas.Trim('"'));
+        //        }
+        //    }
+        //    else
+        //        Attributes.Add(key, value.Trim('"'));
+        //}
 
         /// <summary>
         /// Returns all descendants of the current HTML element, including itself.
@@ -90,7 +90,7 @@ namespace Html_Serializer
         /// <returns>A collection of HTML elements that match the selector.</returns>
         public IEnumerable<HtmlElement> Query(Selector selector)
         {
-            var set = new HashSet<HtmlElement>();
+            HashSet<HtmlElement> set = new HashSet<HtmlElement>();
             FindElementBySelector(selector, set, this.Descendants());
             return set;
         }

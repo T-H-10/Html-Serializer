@@ -73,12 +73,12 @@ static HtmlElement CreateElementsTree(string html)
         //if (string.IsNullOrEmpty(line)) continue;
         string tagName = GetFirstWord(line.Trim());
         if (string.IsNullOrEmpty(tagName)) continue;
-        if (tagName.Equals("/html",StringComparison.OrdinalIgnoreCase))
-        {
-            return root;
-        }
         if (tagName.StartsWith("/"))
         {
+            if (tagName.Equals("/html", StringComparison.OrdinalIgnoreCase))
+            {
+                return root;
+            }
             current = current.Parent ?? root;
         }
         else if (HtmlHelper.Instance.HtmlTags.Contains(tagName))
@@ -86,10 +86,18 @@ static HtmlElement CreateElementsTree(string html)
             HtmlElement child = new HtmlElement() { Name = tagName };
             // Extract attributes.
             var attributes = new Regex("([^\\s]*?)=\"(.*?)\"").Matches(RemoveFirstWord(line));
-            foreach (Match attribute in attributes)
+            foreach (Match match in attributes) //חלוקה ל attributes
             {
-                child.AddAttributes(attribute.Value);
+                if (match.Groups[1].Value == "id")
+                    child.Id = match.Groups[2].Value;
+
+                else if (match.Groups[1].Value == "class")
+                    child.Classes = match.Groups[2].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                else //מאפיין אחר לא ID & Classes
+                    child.Attributes.Add(match.Groups[1].Value, match.Groups[2].Value);
             }
+
             current.Children.Add(child);
             child.Parent = current;
 
@@ -111,17 +119,17 @@ static HtmlElement CreateElementsTree(string html)
 /// </summary>
 /// <param name="selector">The CSS selector.</param>
 /// <param name="root">The root HTML element.</param>
-static void Check1(Selector selector, HtmlElement root)
+static void Check (Selector selector, HtmlElement root)
 {
     var result = root.Query(selector);
     result.ToList().ForEach(element => { Console.WriteLine(element.ToString()); });
 }
 
-string html = await LoadAsync("https://chani-k.co.il/sherlok-game/");
+string html = await LoadAsync("https://hebrewbooks.org/beis");
 HtmlElement root = CreateElementsTree(html);
-Selector selector = Selector.ConvertQuery("div a");
+Selector selector = Selector.ConvertQuery("div a.inactBG");
 //Console.WriteLine(selector.ToString());
-Check1(selector, root);
+Check(selector, root);
 
 //Print(root);
 
