@@ -19,7 +19,7 @@ namespace Html_Serializer
             var json = File.ReadAllText(filePath);
             return JsonSerializer.Deserialize<string[]>(json);
         }
-        public HtmlHelper()
+        private HtmlHelper()
         {
             HtmlTags = LoadTagsFromJson("JSON-Files/HtmlTags.json");
             HtmlVoidTags = LoadTagsFromJson("JSON-Files/HtmlVoidTags.json");
